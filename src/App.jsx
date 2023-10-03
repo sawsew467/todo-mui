@@ -20,8 +20,75 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { getColor } from "./ultils/color";
+import { useState } from "react";
+
+const DATA = [
+  {
+    id: 1,
+    title: "Ăn cơm",
+    priority: "high",
+    isDone: false,
+  },
+  {
+    id: 2,
+    title: "Nấu cơm",
+    priority: "normal",
+    isDone: true,
+  },
+  {
+    id: 3,
+    title: "Rửa chén",
+    priority: "low",
+    isDone: false,
+  },
+];
 
 function App() {
+  const [filter, setFilter] = useState("all");
+  const [task, setTask] = useState({
+    id: "",
+    title: "",
+    priority: "normal",
+    isDone: false,
+  });
+  const [taskList, setTaskList] = useState([
+    {
+      id: 1,
+      title: "Ăn cơm",
+      priority: "high",
+      isDone: false,
+    },
+    {
+      id: 2,
+      title: "Nấu cơm",
+      priority: "normal",
+      isDone: true,
+    },
+    {
+      id: 3,
+      title: "Rửa chén",
+      priority: "low",
+      isDone: false,
+    },
+  ]);
+
+  const handleSubmit = () => {
+    console.log(task);
+    setTaskList([...taskList, task]);
+    setTask({
+      id: "",
+      title: "",
+      priority: "high",
+      isDone: false,
+    });
+  };
+
+  const handleDelete = (x) => {
+    const newArray = taskList.filter((task, index) => index !== x);
+    setTaskList(newArray)
+  }
+
   return (
     <>
       <Box
@@ -45,18 +112,22 @@ function App() {
                 Filter by status
               </Typography>
               <FormControl>
-                {/* <FormLabel id="demo-radio-buttons-group-label">
-                  Gender
-                </FormLabel> */}
                 <RadioGroup
+                  onChange={(e) => setFilter(e.target.value)}
                   aria-labelledby="demo-radio-buttons-group-label"
                   defaultValue="female"
                   name="radio-buttons-group"
+                  value={filter}
                   sx={{
                     display: "flex",
                     flexDirection: "row",
                   }}
                 >
+                  <FormControlLabel
+                    value="all"
+                    control={<Radio />}
+                    label="all"
+                  />
                   <FormControlLabel
                     value="high"
                     control={<Radio />}
@@ -80,34 +151,39 @@ function App() {
                 Your tasks
               </Typography>
               <Stack direction={"column"}>
-                <Stack direction={"row"} gap={1} alignItems={"center"}>
-                  <Checkbox />
-                  <Typography variant="body" flex={1}>
-                    Nau com
-                  </Typography>
-                  <Chip label="high" color="error" />
-                  <IconButton aria-label="delete" size="large">
-                    <DeleteIcon fontSize="inherit" />
-                  </IconButton>
-                </Stack>
-                <Stack direction={"row"} gap={1} alignItems={"center"}>
-                  <Checkbox />
-                  <Typography
-                    variant="body"
-                    flex={1}
-                    sx={{ textDecoration: "line-through" }}
-                  >
-                    Rua chen
-                  </Typography>
-                  <Chip label="low" color="warning" />
-                </Stack>
-                <Stack direction={"row"} gap={1} alignItems={"center"}>
-                  <Checkbox />
-                  <Typography variant="body" flex={1}>
-                    Lau nha
-                  </Typography>
-                  <Chip label="normal" color="success" />
-                </Stack>
+                {taskList.map(
+                  (task, index) =>
+                    (task.priority === filter || filter === 'all') ? (
+                      <>
+                        <Stack
+                          direction={"row"}
+                          gap={1}
+                          alignItems={"center"}
+                          key={index}
+                        >
+                          <Checkbox checked={task.isDone} />
+                          <Typography
+                            variant="body"
+                            flex={1}
+                            sx={{
+                              textDecoration: task.isDone
+                                ? "line-through"
+                                : "none",
+                            }}
+                          >
+                            {task.title}
+                          </Typography>
+                          <Chip
+                            label={task.priority}
+                            color={getColor(task.priority)}
+                          />
+                          <IconButton aria-label="delete" size="large" onClick={() => handleDelete(index)}>
+                            <DeleteIcon fontSize="inherit" />
+                          </IconButton>
+                        </Stack>
+                      </>
+                    ) : <></>
+                )}
               </Stack>
             </Container>
             <Divider sx={{ marginY: 2 }}></Divider>
@@ -120,7 +196,14 @@ function App() {
                   id="outlined-basic"
                   label="Title"
                   variant="outlined"
+                  value={task.title}
                   sx={{ flex: 3 }}
+                  onChange={(e) =>
+                    setTask({
+                      ...task,
+                      title: e.target.value,
+                    })
+                  }
                 />
                 <Box sx={{ flex: 1 }}>
                   <FormControl fullWidth>
@@ -130,18 +213,27 @@ function App() {
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
-                      // value={age}
+                      defaultValue={"normal"}
                       label="Priority"
-                      // onChange={handleChange}
+                      onChange={(event) =>
+                        setTask({
+                          ...task,
+                          priority: event.target.value,
+                        })
+                      }
                     >
-                      <MenuItem value={10}>High</MenuItem>
-                      <MenuItem value={20}>Normal</MenuItem>
-                      <MenuItem value={30}>Low</MenuItem>
+                      <MenuItem value={"high"}>High</MenuItem>
+                      <MenuItem value={"normal"}>Normal</MenuItem>
+                      <MenuItem value={"low"}>Low</MenuItem>
                     </Select>
                   </FormControl>
                 </Box>
               </Stack>
-              <Button variant="contained" sx={{ width: "100%", marginTop: 2 }}>
+              <Button
+                variant="contained"
+                sx={{ width: "100%", marginTop: 2 }}
+                onClick={handleSubmit}
+              >
                 Add task
               </Button>
             </Container>
