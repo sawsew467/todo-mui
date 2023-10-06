@@ -22,6 +22,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { getColor } from "./ultils/color";
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
 
 const DATA = [
   {
@@ -82,15 +83,31 @@ function App() {
       priority: "high",
       isDone: false,
     });
+    toast.error("Add task successfully!!!");
   };
 
   const handleDelete = (x) => {
     const newArray = taskList.filter((task, index) => index !== x);
-    setTaskList(newArray)
-  }
+    setTaskList(newArray);
+  };
+
+  const toggleStatus = (x) => {
+    const newTaskList = taskList.map((task, index) => {
+      if (x === index) {
+        return {
+          ...task,
+          isDone: !task.isDone,
+        };
+      }
+
+      return task;
+    });
+    setTaskList(newTaskList);
+  };
 
   return (
     <>
+      
       <Box
         sx={{
           minWidth: "100vw",
@@ -102,6 +119,8 @@ function App() {
           padding: 10,
         }}
       >
+        
+      <ToastContainer />
         <Card sx={{ minWidth: 600 }}>
           <CardContent>
             <Typography variant="h4" textAlign={"center"}>
@@ -151,38 +170,53 @@ function App() {
                 Your tasks
               </Typography>
               <Stack direction={"column"}>
-                {taskList.map(
-                  (task, index) =>
-                    (task.priority === filter || filter === 'all') ? (
-                      <>
-                        <Stack
-                          direction={"row"}
-                          gap={1}
-                          alignItems={"center"}
-                          key={index}
+                {taskList.map((task, index) =>
+                  task.priority === filter || filter === "all" ? (
+                    <>
+                      <Stack
+                        direction={"row"}
+                        gap={1}
+                        alignItems={"center"}
+                        key={index}
+                      >
+                        <Checkbox
+                          checked={task.isDone}
+                          onChange={() => toggleStatus(index)}
+                        />
+                        <Typography
+                          variant="body"
+                          flex={1}
+                          sx={{
+                            textDecoration: task.isDone
+                              ? "line-through"
+                              : "none",
+                          }}
                         >
-                          <Checkbox checked={task.isDone} />
-                          <Typography
-                            variant="body"
-                            flex={1}
-                            sx={{
-                              textDecoration: task.isDone
-                                ? "line-through"
-                                : "none",
-                            }}
-                          >
-                            {task.title}
-                          </Typography>
-                          <Chip
-                            label={task.priority}
-                            color={getColor(task.priority)}
-                          />
-                          <IconButton aria-label="delete" size="large" onClick={() => handleDelete(index)}>
-                            <DeleteIcon fontSize="inherit" />
-                          </IconButton>
-                        </Stack>
-                      </>
-                    ) : <></>
+                          {task.title}
+                        </Typography>
+                        <Chip
+                          label={task.priority}
+                          color={getColor(task.priority)}
+                        />
+                        <IconButton
+                          aria-label="delete"
+                          size="large"
+                          onClick={() => handleDelete(index)}
+                        >
+                          <DeleteIcon fontSize="inherit" />
+                        </IconButton>
+                      </Stack>
+                    </>
+                  ) : (
+                    <></>
+                  )
+                )}
+                {taskList.filter(
+                  (task, index) => task.priority === filter || filter === "all"
+                ).length === 0 ? (
+                  <Typography>Empty</Typography>
+                ) : (
+                  <></>
                 )}
               </Stack>
             </Container>
