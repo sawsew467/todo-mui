@@ -6,6 +6,11 @@ import {
   Checkbox,
   Chip,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   FormControl,
   FormControlLabel,
@@ -20,32 +25,14 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { getColor } from "./ultils/color";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 
-const DATA = [
-  {
-    id: 1,
-    title: "Ăn cơm",
-    priority: "high",
-    isDone: false,
-  },
-  {
-    id: 2,
-    title: "Nấu cơm",
-    priority: "normal",
-    isDone: true,
-  },
-  {
-    id: 3,
-    title: "Rửa chén",
-    priority: "low",
-    isDone: false,
-  },
-];
-
 function App() {
+  const [open, setOpen] = useState(false);
+  const [isValidate, setIsvalidate] = useState(false);
   const [filter, setFilter] = useState("all");
   const [task, setTask] = useState({
     id: "",
@@ -75,7 +62,11 @@ function App() {
   ]);
 
   const handleSubmit = () => {
-    console.log(task);
+    if (task.title.trim() === "") {
+      setIsvalidate(true);
+      toast.error("Add task faild!!!");
+      return;
+    }
     setTaskList([...taskList, task]);
     setTask({
       id: "",
@@ -83,7 +74,8 @@ function App() {
       priority: "high",
       isDone: false,
     });
-    toast.error("Add task successfully!!!");
+    setIsvalidate(false);
+    toast.success("Add task successfully!!!");
   };
 
   const handleDelete = (x) => {
@@ -107,7 +99,53 @@ function App() {
 
   return (
     <>
-      
+      <Dialog maxWidth={'lg'} open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>Edit task</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Edit your task</DialogContentText>
+          <Stack direction={"row"} gap={2} width={600} marginTop={2}>
+            <TextField
+              error={isValidate && task.title.trim() === ""}
+              id="outlined-basic"
+              label="Title"
+              variant="outlined"
+              value={task.title}
+              sx={{ flex: 3 }}
+              onChange={(e) =>
+                setTask({
+                  ...task,
+                  title: e.target.value,
+                })
+              }
+            />
+            <Box sx={{ flex: 1 }}>
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Priority</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  defaultValue={"normal"}
+                  label="Priority"
+                  onChange={(event) =>
+                    setTask({
+                      ...task,
+                      priority: event.target.value,
+                    })
+                  }
+                >
+                  <MenuItem value={"high"}>High</MenuItem>
+                  <MenuItem value={"normal"}>Normal</MenuItem>
+                  <MenuItem value={"low"}>Low</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={() => setOpen(false)}>Submit</Button>
+        </DialogActions>
+      </Dialog>
       <Box
         sx={{
           minWidth: "100vw",
@@ -119,8 +157,7 @@ function App() {
           padding: 10,
         }}
       >
-        
-      <ToastContainer />
+        <ToastContainer />
         <Card sx={{ minWidth: 600 }}>
           <CardContent>
             <Typography variant="h4" textAlign={"center"}>
@@ -201,6 +238,13 @@ function App() {
                         <IconButton
                           aria-label="delete"
                           size="large"
+                          onClick={() => setOpen(true)}
+                        >
+                          <EditIcon fontSize="inherit" />
+                        </IconButton>
+                        <IconButton
+                          aria-label="delete"
+                          size="large"
                           onClick={() => handleDelete(index)}
                         >
                           <DeleteIcon fontSize="inherit" />
@@ -227,6 +271,7 @@ function App() {
               </Typography>
               <Stack direction={"row"} gap={2}>
                 <TextField
+                  error={isValidate && task.title.trim() === ""}
                   id="outlined-basic"
                   label="Title"
                   variant="outlined"
