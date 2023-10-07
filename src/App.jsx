@@ -14,6 +14,7 @@ import {
   Divider,
   FormControl,
   FormControlLabel,
+  FormGroup,
   IconButton,
   InputLabel,
   MenuItem,
@@ -29,12 +30,17 @@ import EditIcon from "@mui/icons-material/Edit";
 import { getColor } from "./ultils/color";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 function App() {
   const [open, setOpen] = useState(false);
   const [isValidate, setIsvalidate] = useState(false);
-  const [filter, setFilter] = useState("all");
+  // const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState({
+    high: true,
+    normal: false,
+    low: false,
+  });
   const [editedTask, setEditedTask] = useState({
     id: "",
     title: "",
@@ -128,6 +134,13 @@ function App() {
     setOpen(false);
   };
 
+  const handleChange = (event) => {
+    setFilter({
+      ...filter,
+      [event.target.name]: event.target.checked,
+    });
+  };
+  console.log(filter);
   return (
     <>
       <Dialog maxWidth={"lg"} open={open} onClose={() => setOpen(false)}>
@@ -198,39 +211,39 @@ function App() {
               <Typography variant="h6" marginBottom={1} marginTop={2}>
                 Filter by status
               </Typography>
-              <FormControl>
-                <RadioGroup
-                  onChange={(e) => setFilter(e.target.value)}
-                  aria-labelledby="demo-radio-buttons-group-label"
-                  defaultValue="female"
-                  name="radio-buttons-group"
-                  value={filter}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                  }}
-                >
+              <FormControl component="fieldset" variant="standard">
+                <FormGroup sx={{ display: "flex", flexDirection: "row" }}>
                   <FormControlLabel
-                    value="all"
-                    control={<Radio />}
-                    label="all"
-                  />
-                  <FormControlLabel
-                    value="high"
-                    control={<Radio />}
+                    control={
+                      <Checkbox
+                        checked={filter.high}
+                        onChange={handleChange}
+                        name="high"
+                      />
+                    }
                     label="High"
                   />
                   <FormControlLabel
-                    value="normal"
-                    control={<Radio />}
+                    control={
+                      <Checkbox
+                        checked={filter.normal}
+                        onChange={handleChange}
+                        name="normal"
+                      />
+                    }
                     label="Normal"
                   />
                   <FormControlLabel
-                    value="low"
-                    control={<Radio />}
+                    control={
+                      <Checkbox
+                        checked={filter.low}
+                        onChange={handleChange}
+                        name="low"
+                      />
+                    }
                     label="Low"
                   />
-                </RadioGroup>
+                </FormGroup>
               </FormControl>
             </Container>
             <Container sx={{ height: 400 }}>
