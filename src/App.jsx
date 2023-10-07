@@ -29,11 +29,18 @@ import EditIcon from "@mui/icons-material/Edit";
 import { getColor } from "./ultils/color";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
+import { v4 as uuidv4 } from 'uuid';
 
 function App() {
   const [open, setOpen] = useState(false);
   const [isValidate, setIsvalidate] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [editedTask, setEditedTask] = useState({
+    id: "",
+    title: "",
+    priority: "normal",
+    isDone: false,
+  });
   const [task, setTask] = useState({
     id: "",
     title: "",
@@ -42,24 +49,25 @@ function App() {
   });
   const [taskList, setTaskList] = useState([
     {
-      id: 1,
+      id: uuidv4(),
       title: "Ăn cơm",
       priority: "high",
       isDone: false,
     },
     {
-      id: 2,
+      id: uuidv4(),
       title: "Nấu cơm",
       priority: "normal",
       isDone: true,
     },
     {
-      id: 3,
+      id: uuidv4(),
       title: "Rửa chén",
       priority: "low",
       isDone: false,
     },
   ]);
+  console.log(taskList);
 
   const handleSubmit = () => {
     if (task.title.trim() === "") {
@@ -67,11 +75,17 @@ function App() {
       toast.error("Add task faild!!!");
       return;
     }
-    setTaskList([...taskList, task]);
+    setTaskList([
+      ...taskList,
+      {
+        ...task,
+        id: uuidv4(),
+      },
+    ]);
     setTask({
       id: "",
       title: "",
-      priority: "high",
+      priority: "normal",
       isDone: false,
     });
     setIsvalidate(false);
@@ -97,23 +111,40 @@ function App() {
     setTaskList(newTaskList);
   };
 
+  const handleEditClick = (task) => {
+    setOpen(true);
+    setEditedTask(task);
+  };
+
+  const handleUpdateTask = () => {
+    const newTaskList = taskList.map((task, index) => {
+      if (editedTask.id === task.id) {
+        return editedTask;
+      } else {
+        return task;
+      }
+    });
+    setTaskList(newTaskList);
+    setOpen(false);
+  };
+
   return (
     <>
-      <Dialog maxWidth={'lg'} open={open} onClose={() => setOpen(false)}>
+      <Dialog maxWidth={"lg"} open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Edit task</DialogTitle>
         <DialogContent>
           <DialogContentText>Edit your task</DialogContentText>
           <Stack direction={"row"} gap={2} width={600} marginTop={2}>
             <TextField
-              error={isValidate && task.title.trim() === ""}
+              error={isValidate && editedTask.title.trim() === ""}
               id="outlined-basic"
               label="Title"
               variant="outlined"
-              value={task.title}
+              value={editedTask.title}
               sx={{ flex: 3 }}
               onChange={(e) =>
-                setTask({
-                  ...task,
+                setEditedTask({
+                  ...editedTask,
                   title: e.target.value,
                 })
               }
@@ -124,11 +155,11 @@ function App() {
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
-                  defaultValue={"normal"}
+                  defaultValue={editedTask.priority}
                   label="Priority"
                   onChange={(event) =>
-                    setTask({
-                      ...task,
+                    setEditedTask({
+                      ...editedTask,
                       priority: event.target.value,
                     })
                   }
@@ -143,7 +174,7 @@ function App() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={() => setOpen(false)}>Submit</Button>
+          <Button onClick={handleUpdateTask}>Submit</Button>
         </DialogActions>
       </Dialog>
       <Box
@@ -236,9 +267,9 @@ function App() {
                           color={getColor(task.priority)}
                         />
                         <IconButton
-                          aria-label="delete"
+                          aria-label="edit"
                           size="large"
-                          onClick={() => setOpen(true)}
+                          onClick={() => handleEditClick(task)}
                         >
                           <EditIcon fontSize="inherit" />
                         </IconButton>
@@ -292,7 +323,7 @@ function App() {
                     <Select
                       labelId="demo-simple-select-label"
                       id="demo-simple-select"
-                      defaultValue={"normal"}
+                      defaultValue={task.priority}
                       label="Priority"
                       onChange={(event) =>
                         setTask({
