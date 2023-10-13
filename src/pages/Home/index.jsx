@@ -253,48 +253,46 @@ import {
                 <Stack direction={"column"}>
                   {taskList.map((task, index) =>
                     filter[task.priority] ? (
-                      <>
-                        <Stack
-                          direction={"row"}
-                          gap={1}
-                          alignItems={"center"}
-                          key={index}
-                        >
-                          <Checkbox
-                            checked={task.isDone}
-                            onChange={() => toggleStatus(index)}
-                          />
-                          <Typography
-                            variant="body"
-                            flex={1}
-                            sx={{
-                              textDecoration: task.isDone
-                                ? "line-through"
-                                : "none",
-                            }}
-                          >
-                            {task.title}
-                          </Typography>
-                          <Chip
-                            label={task.priority}
-                            color={getColor(task.priority)}
-                          />
-                          <IconButton
-                            aria-label="edit"
-                            size="large"
-                            onClick={() => handleEditClick(task)}
-                          >
-                            <EditIcon fontSize="inherit" />
-                          </IconButton>
-                          <IconButton
-                            aria-label="delete"
-                            size="large"
-                            onClick={() => handleDelete(index)}
-                          >
-                            <DeleteIcon fontSize="inherit" />
-                          </IconButton>
-                        </Stack>
-                      </>
+                      <Stack
+                      direction={"row"}
+                      gap={1}
+                      alignItems={"center"}
+                      key={index}
+                    >
+                      <Checkbox
+                        checked={task.isDone}
+                        onChange={() => toggleStatus(index)}
+                      />
+                      <Typography
+                        variant="body"
+                        flex={1}
+                        sx={{
+                          textDecoration: task.isDone
+                            ? "line-through"
+                            : "none",
+                        }}
+                      >
+                        {task.title}
+                      </Typography>
+                      <Chip
+                        label={task.priority}
+                        color={getColor(task.priority)}
+                      />
+                      <IconButton
+                        aria-label="edit"
+                        size="large"
+                        onClick={() => handleEditClick(task)}
+                      >
+                        <EditIcon fontSize="inherit" />
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        size="large"
+                        onClick={() => handleDelete(index)}
+                      >
+                        <DeleteIcon fontSize="inherit" />
+                      </IconButton>
+                    </Stack>
                     ) : (
                       <></>
                     )

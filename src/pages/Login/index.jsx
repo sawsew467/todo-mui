@@ -9,24 +9,64 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import * as Yup from "yup";
+
+export const Validationschema = Yup.object().shape({
+  username: Yup.string()
+    .required("Username is required!!!")
+    .min(8, "Your username must be at least 8 characters!!!"),
+  password: Yup.string()
+    .required("Password is required!!!")
+    .min(8, "Your password must be at least 8 characters!!!")
+    .max(32, "Your password must be at least 32 characters"),
+});
 
 function Login() {
   const [inputValues, setInputValues] = useState({
-    username: "admin",
-    password: "123456",
+    username: "",
+    password: "",
+  });
+
+  const [validate, setValidate] = useState({
+    username: false,
+    password: false,
   });
 
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (inputValues.username === "admin" && inputValues.password === "123456") {
-        toast.success("Login successfully!!!")
-        navigate('/home')
-    } else {
-        toast.error("Invalid username or password")
+  const handleLogin = async () => {
+    try {
+      await Validationschema.validate(inputValues, { abortEarly: false });
+      if (
+        inputValues.username === "admin" &&
+        inputValues.password === "123456"
+      ) {
+        toast.success("Login successfully!!!");
+        navigate("/home");
+      } else {
+        toast.error("Invalid username or password");
+        setValidate({
+          username: false,
+          password: false,
+        })
+      }
+    } catch (error) {
+      let newValidate = {
+        username: false,
+        password: false,
+      };
+      for (let err of error.inner) {
+        newValidate = {
+          ...newValidate,
+          [err.path]: true,
+        };
+        break;
+      }
+      setValidate(newValidate);
+      toast.error(error.errors[0]);
     }
   };
-
+  console.log(validate);
   return (
     <Box
       sx={{
@@ -51,18 +91,26 @@ function Login() {
             Login
           </Typography>
           <TextField
+          error={validate.username}
             fullWidth
             id="outlined-basic"
             label="Username"
             variant="outlined"
             sx={{ flex: 3 }}
+            onChange={(e) =>
+              setInputValues({ ...inputValues, username: e.target.value })
+            }
           />
           <TextField
+          error={validate.password}
             fullWidth
             id="outlined-basic"
             label="Password"
             variant="outlined"
             sx={{ flex: 3, marginTop: 2 }}
+            onChange={(e) =>
+              setInputValues({ ...inputValues, password: e.target.value })
+            }
           />
           <Button
             variant="contained"
@@ -73,6 +121,7 @@ function Login() {
             Login
           </Button>
           <Typography variant="body" textAlign={"center"}>
+            {/* eslint-disable-next-line react/no-unescaped-entities */}
             Don't have account?
           </Typography>
           <Link to={"/register"} style={{ width: "100%" }}>
