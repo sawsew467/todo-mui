@@ -62,8 +62,10 @@ function Login() {
         };
         break;
       }
+      for (let i = 0; i < error.errors.length; i++) {
+        toast.error(error.errors[i]);
+      }
       setValidate(newValidate);
-      toast.error(error.errors[0]);
     }
   };
   console.log(validate);
